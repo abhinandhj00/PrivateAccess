@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AJ Secure Vault</title>
+    <title>AJ Private Vault</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #000; color: white; margin: 0; text-align: center; -webkit-user-select: none; user-select: none; }
@@ -39,7 +39,7 @@
     </div>
 
     <div id="unlockedArea">
-        <h2 style="color: #ff0055;">Gallery Unlocked</h2>
+        <h2 style="color: #ff0055;">Photos Unlocked</h2>
         <div class="gallery" id="photoGallery"></div>
         <br>
         <button onclick="location.reload()" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:10px;">LOCK</button>
@@ -48,7 +48,7 @@
     <div class="watermark">BY AJ</div>
 
     <script>
-        const NPOINT_ID = "26ba0fcdd40b047d9b79"; 
+        const NPOINT_ID = "4059520f226f93205384"; 
         let correctPIN = ""; // Global variable to store PIN
 
         const photos = [
@@ -65,7 +65,7 @@
                 const response = await fetch(`https://api.npoint.io/${NPOINT_ID}`);
                 const data = await response.json();
                 correctPIN = String(data.pincode).trim();
-                statusDiv.innerText = "Server Synced ✔";
+                statusDiv.innerText = "Server Synced  ✔";
                 statusDiv.style.color = "#00ff00";
             } catch (err) {
                 statusDiv.innerText = "Offline ⚠ Check Internet";

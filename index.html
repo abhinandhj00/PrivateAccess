@@ -5,24 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #000; color: white; margin: 0; text-align: center; -webkit-user-select: none; user-select: none; }
-        .vault-box { max-width: 500px; margin: 80px auto; padding: 30px; background: #111; border-radius: 25px; border: 1px solid #333; }
+        .vault-box { max-width: 500px; margin: 60px auto; padding: 30px; background: #111; border-radius: 25px; border: 1px solid #333; }
         #unlockedArea { display: none; padding: 20px; padding-bottom: 100px; }
         
+        /* PIN Input Style */
         input[type="password"] { 
             width: 85%; padding: 15px; margin-bottom: 20px; border-radius: 12px; border: 1px solid #444; 
             background: #222; color: white; font-size: 18px; text-align: center; outline: none;
         }
 
-        .btn-unlock { width: 93%; padding: 15px; background: linear-gradient(45deg, #ff0055, #ff4757); border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
+        /* Main Buttons */
+        .btn-unlock { width: 93%; padding: 15px; background: linear-gradient(45deg, #ff0055, #ff4757); border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-bottom: 10px; }
         
-        /* Status indicator */
-        #status { font-size: 12px; color: #555; margin-bottom: 10px; }
+        /* Refresh Button Style */
+        .btn-refresh { 
+            background: #333; color: #00ff00; border: 1px solid #444; padding: 8px 15px; 
+            border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: bold; margin-bottom: 20px;
+        }
+        .btn-refresh:active { background: #444; }
 
+        #status { font-size: 13px; color: #ffeb3b; margin-bottom: 10px; }
+
+        /* Gallery & Protection */
         .gallery { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
         .photo-card { position: relative; background: #1a1a1a; padding: 10px; border-radius: 15px; border: 1px solid #333; overflow: hidden; }
         .protection-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: rgba(0,0,0,0); }
         img { width: 100%; border-radius: 10px; pointer-events: none; }
 
+        /* RGB Watermark */
         .watermark { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-weight: bold; font-size: 20px; z-index: 9999; animation: rgbText 3s infinite linear; pointer-events: none; }
         @keyframes rgbText { 0% { color: #ff0000; } 33% { color: #00ff00; } 66% { color: #0000ff; } 100% { color: #ff0000; } }
     </style>
@@ -30,10 +40,94 @@
 <body oncontextmenu="return false;">
 
     <div id="lockScreen" class="vault-box">
-        <h1 style="font-size: 60px;">LOGIN!!</h1>
-        <h2>AJ Secure Vault</h2>
-        <div id="status">Syncing with server...</div>
+        <h1 style="font-size: 60px; margin-bottom: 10px;">🔐</h1>
+        
+        <button class="btn-refresh" onclick="fetchLatestPIN()">🔄 REFRESH PIN FROM SERVER</button>
+        
+        <div id="status">Waiting for sync...</div>
+        
+        <input type="password" id="pinInput" placeholder="Enter PIN">
+        <button class="btn-unlock" id="unlockBtn" onclick="verifyPin()">LOGIN</button>
+    </div>
+
+    <div id="unlockedArea">
+        <h2 style="color: #ff0055;">AJ Private Gallery</h2>
+        <div class="gallery" id="photoGallery"></div>
         <br>
+        <button onclick="location.reload()" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:10px;">EXIT</button>
+    </div>
+
+    <div class="watermark">BY AJ</div>
+
+    <script>
+        // 1. N:POINT ID IVIDE PASTE CHEYYUKA
+        const NPOINT_ID = "4059520f226f93205384"; 
+        let correctPIN = ""; 
+
+        // 2. 20 PHOTO LINKS IVIDE IDUKA
+        const photos = [
+            "https://cdn.discordapp.com/attachments/1471169314307571796/1471177809123606750/1764175305332.jpg?ex=698dfc9a&is=698cab1a&hm=0813ab80974693ce61611dd8d932e732f2d062321120d84b4030a3e0c834623c&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177826341228688/1764175156974.jpg?ex=698dfc9e&is=698cab1e&hm=6d42706271e3afe3c1ebd42a7e9e026f50feb117b5d6b0a6807961268e594374&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177832968228914/1764270304581.jpg?ex=698dfca0&is=698cab20&hm=1de676683ab78548f19380476c749dd64a0b9c83fd3a24f39481d30d1ef269a1&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177843701710849/1764174082632.jpg?ex=698dfca3&is=698cab23&hm=d700820877e5d0aba4a8179a271200d7ed0037ca5209abc00d0eb036bbc5f2ac&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177863574196379/1764271172026.jpg?ex=698dfca7&is=698cab27&hm=72867594bd18a6af67b6c35d7d8945281137d812fdba0538bdda6eac69d2fd06&",
+            "https://cdn.discordapp.com/attachments/1471169314307571796/1471177913016782973/1764175556396.jpg?ex=698dfcb3&is=698cab33&hm=c203593840f429d2de46c23356bff2862aa8acef7c8cf2c400ba772549ebdcfa&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177849988976827/1764271270461.jpg?ex=698dfca4&is=698cab24&hm=0237ade966d2cceed92d6d6258425ae0ade107f69601ab225772f5ff29251904&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177922432991273/1764270969092.jpg?ex=698dfcb5&is=698cab35&hm=df0da5e2b1bcba8eb6a292092b91ab37c79440352510bce546298820df30360f&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177945824624763/1764328167521.jpg?ex=698dfcbb&is=698cab3b&hm=004d1f6f57fe934b21cdab4f56c904f7405255dcecea09a6a08c1a8c814fa141&",
+            "https://cdn.discordapp.com/attachments/1471169314307571796/1471177956104736818/1764776030805.jpg?ex=698dfcbd&is=698cab3d&hm=aa6d70e3b2cab508eb057bcc6ab2c72f15e2ac7185892ae41cf404ef796974a0&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177968884912178/Video.Guru_20251205-135502249.jpg?ex=698dfcc0&is=698cab40&hm=8e15b93644f3461de400d1a42938544d4f654665f05d43c8801398f17e8119bf&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177977055154397/1764611682340.jpg?ex=698dfcc2&is=698cab42&hm=5eea12a04805586365b4cddd902317311df031e0c3754e7b9e286c994537603e&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177983116050462/1765732584396.jpg?ex=698dfcc4&is=698cab44&hm=86f8017c847b045a70206fc4a85d768b6949ce6eeda92d9561a61d060e777ceb&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177448577171670/1764932185593.jpg?ex=698dfc44&is=698caac4&hm=da11a93d151544fbe40dedb4c22afef15db217084a5c733db260e3e56dddbdfd&",
+        
+        ];
+
+
+        // 🔄 n:point Refresh Function
+        async function fetchLatestPIN() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerText = "Syncing with n:point...";
+            statusDiv.style.color = "#ffeb3b";
+
+            try {
+                // Cache thadayaan timestamp upayogikkunnu
+                const response = await fetch(`https://api.npoint.io/${NPOINT_ID}?t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error();
+                
+                const data = await response.json();
+                if(data.pincode) {
+                    correctPIN = String(data.pincode).trim();
+                    statusDiv.innerText = "Server Synced ✅";
+                    statusDiv.style.color = "#00ff00";
+                } else {
+                    throw new Error();
+                }
+            } catch (err) {
+                statusDiv.innerText = "Sync Failed! Check ID or Internet ❌";
+                statusDiv.style.color = "#ff4444";
+            }
+        }
+
+        // App thurakkumpol auto-fetch
+        window.onload = fetchLatestPIN;
+
+        function verifyPin() {
+            const userPIN = document.getElementById('pinInput').value.trim();
+            
+            if (correctPIN === "") {
+                alert("Server-il ninnu PIN kittiyeilla. Refresh button click cheyyu.");
+                return;
+            }
+
+            if (userPIN === correctPIN) {
+                loadPhotos();
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('unlockedArea').style.display = 'block';
+            } else {
+                alert("INVALID OR EXPIRED KEY");
+            }
+        }
+
+        function loadPhotos() {
+            const container = document.getElementById('photoGallery');
+            container.innerHTML = "";
+            photos.forEach(link => {
+                container.innerHTML += `<div class="photo-card"><div class="protection-layer"></div><img src="${link}"></div>`;
+            });
+        }
+    </script>
+</body>
+</html>
         <input type="password" id="pinInput" placeholder="Enter Dynamic PIN">
         <button class="btn-unlock" id="unlockBtn" onclick="verifyPin()">ENTER</button>
     </div>

@@ -42,7 +42,7 @@
     <div id="lockScreen" class="vault-box">
         <h1 style="font-size: 60px; margin-bottom: 10px;">🔐</h1>
         
-        <button class="btn-refresh" onclick="fetchLatestPIN()">🔄 REFRESH PIN FROM SERVER</button>
+        <button class="btn-refresh" onclick="fetchLatestPIN()">REFRESH 🔄</button>
         
         <div id="status">Waiting for sync...</div>
         
@@ -51,7 +51,7 @@
     </div>
 
     <div id="unlockedArea">
-        <h2 style="color: #ff0055;">AJ Private Gallery</h2>
+        <h2 style="color: #ff0055;"> Private Photos </h2>
         <div class="gallery" id="photoGallery"></div>
         <br>
         <button onclick="location.reload()" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:10px;">EXIT</button>
@@ -76,7 +76,7 @@
         // 🔄 n:point Refresh Function
         async function fetchLatestPIN() {
             const statusDiv = document.getElementById('status');
-            statusDiv.innerText = "Syncing with n:point...";
+            statusDiv.innerText = "Syncing Server....";
             statusDiv.style.color = "#ffeb3b";
 
             try {
@@ -93,7 +93,7 @@
                     throw new Error();
                 }
             } catch (err) {
-                statusDiv.innerText = "Sync Failed! Check ID or Internet ❌";
+                statusDiv.innerText = "Sync Failed ❌ Check your Internet connection ";
                 statusDiv.style.color = "#ff4444";
             }
         }
@@ -105,7 +105,7 @@
             const userPIN = document.getElementById('pinInput').value.trim();
             
             if (correctPIN === "") {
-                alert("Server-il ninnu PIN kittiyeilla. Refresh button click cheyyu.");
+                alert("Server loading with errors, click Refresh.");
                 return;
             }
 
@@ -123,70 +123,6 @@
             container.innerHTML = "";
             photos.forEach(link => {
                 container.innerHTML += `<div class="photo-card"><div class="protection-layer"></div><img src="${link}"></div>`;
-            });
-        }
-    </script>
-</body>
-</html>
-        <input type="password" id="pinInput" placeholder="Enter Dynamic PIN">
-        <button class="btn-unlock" id="unlockBtn" onclick="verifyPin()">ENTER</button>
-    </div>
-
-    <div id="unlockedArea">
-        <h2 style="color: #ff0055;">Photos Unlocked</h2>
-        <div class="gallery" id="photoGallery"></div>
-        <br>
-        <button onclick="location.reload()" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:10px;">LOCK</button>
-    </div>
-
-    <div class="watermark">BY AJ</div>
-
-    <script>
-        const NPOINT_ID = "4059520f226f93205384"; 
-        let correctPIN = ""; // Global variable to store PIN
-
-        const photos = [
-            "https://cdn.discordapp.com/attachments/1471169314307571796/1471177809123606750/1764175305332.jpg?ex=698dfc9a&is=698cab1a&hm=0813ab80974693ce61611dd8d932e732f2d062321120d84b4030a3e0c834623c&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177826341228688/1764175156974.jpg?ex=698dfc9e&is=698cab1e&hm=6d42706271e3afe3c1ebd42a7e9e026f50feb117b5d6b0a6807961268e594374&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177832968228914/1764270304581.jpg?ex=698dfca0&is=698cab20&hm=1de676683ab78548f19380476c749dd64a0b9c83fd3a24f39481d30d1ef269a1&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177843701710849/1764174082632.jpg?ex=698dfca3&is=698cab23&hm=d700820877e5d0aba4a8179a271200d7ed0037ca5209abc00d0eb036bbc5f2ac&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177863574196379/1764271172026.jpg?ex=698dfca7&is=698cab27&hm=72867594bd18a6af67b6c35d7d8945281137d812fdba0538bdda6eac69d2fd06&",
-            "https://cdn.discordapp.com/attachments/1471169314307571796/1471177913016782973/1764175556396.jpg?ex=698dfcb3&is=698cab33&hm=c203593840f429d2de46c23356bff2862aa8acef7c8cf2c400ba772549ebdcfa&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177849988976827/1764271270461.jpg?ex=698dfca4&is=698cab24&hm=0237ade966d2cceed92d6d6258425ae0ade107f69601ab225772f5ff29251904&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177922432991273/1764270969092.jpg?ex=698dfcb5&is=698cab35&hm=df0da5e2b1bcba8eb6a292092b91ab37c79440352510bce546298820df30360f&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177945824624763/1764328167521.jpg?ex=698dfcbb&is=698cab3b&hm=004d1f6f57fe934b21cdab4f56c904f7405255dcecea09a6a08c1a8c814fa141&", "LINK_10",
-            "https://cdn.discordapp.com/attachments/1471169314307571796/1471177956104736818/1764776030805.jpg?ex=698dfcbd&is=698cab3d&hm=aa6d70e3b2cab508eb057bcc6ab2c72f15e2ac7185892ae41cf404ef796974a0&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177968884912178/Video.Guru_20251205-135502249.jpg?ex=698dfcc0&is=698cab40&hm=8e15b93644f3461de400d1a42938544d4f654665f05d43c8801398f17e8119bf&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177977055154397/1764611682340.jpg?ex=698dfcc2&is=698cab42&hm=5eea12a04805586365b4cddd902317311df031e0c3754e7b9e286c994537603e&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177983116050462/1765732584396.jpg?ex=698dfcc4&is=698cab44&hm=86f8017c847b045a70206fc4a85d768b6949ce6eeda92d9561a61d060e777ceb&", "https://cdn.discordapp.com/attachments/1471169314307571796/1471177448577171670/1764932185593.jpg?ex=698dfc44&is=698caac4&hm=da11a93d151544fbe40dedb4c22afef15db217084a5c733db260e3e56dddbdfd&",
-        
-        ];
-
-        //  App open aakumbol PIN automatic fetch cheyyunnu
-        window.onload = async function() {
-            const statusDiv = document.getElementById('status');
-            try {
-                const response = await fetch(`https://api.npoint.io/${NPOINT_ID}`);
-                const data = await response.json();
-                correctPIN = String(data.pincode).trim();
-                statusDiv.innerText = "Server Synced  ✔";
-                statusDiv.style.color = "#00ff00";
-            } catch (err) {
-                statusDiv.innerText = "Offline ⚠ Check Internet";
-                statusDiv.style.color = "#ff4444";
-            }
-        };
-
-        function verifyPin() {
-            const userPIN = document.getElementById('pinInput').value.trim();
-            if (userPIN === correctPIN && correctPIN !== "") {
-                loadPhotos();
-                document.getElementById('lockScreen').style.display = 'none';
-                document.getElementById('unlockedArea').style.display = 'block';
-            } else {
-                alert("INVALID OR EXPIRED KEY");
-            }
-        }
-
-        function loadPhotos() {
-            const container = document.getElementById('photoGallery');
-            container.innerHTML = "";
-            photos.forEach(link => {
-                container.innerHTML += `
-                    <div class="photo-card">
-                        <div class="protection-layer"></div>
-                        <img src="${link}">
-                    </div>`;
             });
         }
     </script>
